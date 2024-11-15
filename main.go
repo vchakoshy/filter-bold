@@ -169,6 +169,30 @@ func (f *FilterBold) Find(o interface{}) *FilterBold {
 	return f
 }
 
+// ApplyAccessFilter
+//
+//	NewFilterBold(c, u.db).Model(&models.Task{}).
+//	ApplyAccessFilter(func(db *gorm.DB) *gorm.DB {
+//		role := session.GetUserRole(c)
+//		uid := session.GetUserID(c)
+//		if role == session.RoleUser {
+//			return db.Where("user_id = ?", uid)
+//		} else if role == session.RoleEditor {
+//			return db.Where("department_id = ?", session.GetDepartmentID(c))
+//		}
+//		return db
+//	}).
+//	Preloads("Project", "Department", "User").
+//	Likes("name").
+//	Find(&l)
+func (f *FilterBold) ApplyAccessFilter(whereFunc func(db *gorm.DB) *gorm.DB) *FilterBold {
+	if whereFunc != nil {
+		f.db = whereFunc(f.db)
+	}
+
+	return f
+}
+
 func (f *FilterBold) makeNextURL() *FilterBold {
 	up := f.c.Request.URL
 	uq := up.Query()
